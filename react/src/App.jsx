@@ -1,17 +1,15 @@
-import React from 'react';
-import { ethers } from 'ethers';
-import './App.css';
-import { useEffect, useState } from 'react';
-import abi from './utils/Buildspace.json';
+import React from "react";
+import { ethers } from "ethers";
+import "./App.css";
+import { useEffect, useState } from "react";
+import abi from "./utils/Buildspace.json";
 
 const getEthereumObject = () => window.ethereum;
 
 const findMetamaskAccount = async () => {
-
   try {
-
     const ethereum = getEthereumObject();
-    if(!ethereum) {
+    if (!ethereum) {
       console.error("Make sure you have MetaMask installed!");
       return null;
     }
@@ -19,71 +17,66 @@ const findMetamaskAccount = async () => {
     console.log("We got your Ethereum connection!", ethereum);
     const accounts = await ethereum.request({ method: "eth_accounts" });
 
-    if(accounts.length != 0) {
+    if (accounts.length != 0) {
       const account = accounts[0];
-      console.log("Found an authorized account: ", account)
+      console.log("Found an authorized account: ", account);
       return account;
     } else {
       console.error("No authorized accounts found!");
       return null;
     }
-
-  } 
-  
-  catch(err) {
+  } catch (err) {
     console.error(err);
     return null;
   }
-
-}
+};
 
 const App = () => {
-
+  const [waveNumber, setWaveNumber] = useState(0);
   const [currentAccount, setCurrentAccount] = useState("");
 
-  const contractAddress = '0x0C84D86450f79572B3A0F6b59263c2A47340f5E9';
+  const contractAddress = "0x0C84D86450f79572B3A0F6b59263c2A47340f5E9";
   const contractABI = abi.abi;
 
   const connectWallet = async () => {
-
     try {
-
       const ethereum = getEthereumObject();
-      if (!ethereum) { 
+      if (!ethereum) {
         alert("Your MetaMask is not connected!");
         return;
       }
 
-      const accounts = await ethereum.request({method: "eth_requestAccounts"});
+      const accounts = await ethereum.request({
+        method: "eth_requestAccounts",
+      });
       console.log("Connected", accounts[0]);
       setCurrentAccount(accounts[0]);
-
-    }
-
-    catch(err) {
+    } catch (err) {
       console.error(err);
     }
-
-  }
+  };
 
   useEffect(() => {
     findMetamaskAccount().then((account) => {
-      if(account != null) {
+      if (account != null) {
         setCurrentAccount(account);
       }
     });
   }, []);
 
   const wave = async () => {
-
     try {
-
-      if(ethereum) {
+      if (ethereum) {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const signer = provider.getSigner();
-        const BuildspaceContract = new ethers.Contract(contractAddress, contractABI, signer);
+        const BuildspaceContract = new ethers.Contract(
+          contractAddress,
+          contractABI,
+          signer
+        );
 
         let count = await BuildspaceContract.getTotalWaves();
+        setWaveNumber(count.toNumber());
         console.log("Total wave number is: ", count.toNumber());
 
         const waveTxn = await BuildspaceContract.wave();
@@ -97,25 +90,18 @@ const App = () => {
       } else {
         console.error("Ethereum object doesn't exist");
       }
-
-    }
-
-    catch(err) {
+    } catch (err) {
       console.error(err);
     }
-
-  }
+  };
 
   return (
     <div className="mainContainer">
       <div className="dataContainer">
-
-        <div className="header">
-        👋 Bom dia!
-        </div>
+        <div className="header">👋 Bom dia!</div>
 
         <div className="bio">
-        So, now we just gonna connect Ethereum wallet (MetaMask) to this dApp
+          So, now we just gonna connect Ethereum wallet (MetaMask) to this dApp
         </div>
 
         <button className="waveButton" onClick={wave}>
@@ -128,9 +114,12 @@ const App = () => {
           </button>
         )}
 
+        <div>
+          <p>There are {waveNumber} waves!</p>
+        </div>
       </div>
     </div>
   );
-}
+};
 
 export default App;
