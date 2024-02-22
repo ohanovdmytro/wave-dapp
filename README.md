@@ -7,7 +7,7 @@ This Wave Dapp allows you to interact with the blockchain by signing transaction
 1. **Clone the repository:**
 
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/ohanovdmytro/wave-dapp.git
    
 2. **Navigate to the React app directory:**
 
